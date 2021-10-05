@@ -5,7 +5,6 @@
 # See README.md for more information
 
 """Implementation to stream PNGs over a webpage that responds with touches that are relayed back to the dongle for Tesla experimental purposes."""
-import decoder
 import server
 import link
 import protocol
@@ -37,12 +36,6 @@ class Teslabox:
             self._owner.connection.send_message(msg)
         def on_get_snapshot(self):
             return self._owner._frame
-    class _Decoder(decoder.Decoder):
-        def __init__(self, owner):
-            super().__init__()
-            self._owner = owner
-        def on_frame(self, png):
-            self._owner._frame = png
     class _Connection(link.Connection):
         def __init__(self, owner):
             super().__init__()
@@ -53,20 +46,18 @@ class Teslabox:
                     self._owner._connected()
                     self.send_multiple(protocol.opened_info)
             elif isinstance(message, protocol.VideoData):
-                self._owner.decoder.send(message.data)
+                pass
+                # send frames here self._owner.decoder.send(message.data)
         def on_error(self, error):
             self._owner._disconnect()
     def __init__(self):
         self._disconnect()
         self.server = self._Server(self)
-        self.decoder = self._Decoder(self)
         self.heartbeat = Thread(target=self._heartbeat_thread)
         self.heartbeat.start()
     def _connected(self):
         print("Connected!")
         self.started = True
-        self.decoder.stop()
-        self.decoder = self._Decoder(self)
     def _disconnect(self):
         if hasattr(self, "connection"):
             if self.connection is None:

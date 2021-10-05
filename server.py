@@ -138,8 +138,6 @@ function run() {
 			finally:
 				self.owner.streams.remove(self)
 
-		def get_ping(self):
-			self.wfile.write(self.owner.on_get_snapshot())
 
 		def do_touch(self, json):
 			self.owner.on_touch(json["type"], json["x"], json["y"])
@@ -147,8 +145,7 @@ function run() {
 	
 		pages = {
 			"/": ("text/html; charset=utf-8", get_index),
-			"/stream": ("video/H264", get_stream),
-			"/snapshot": ("image/png", get_ping),
+			"/stream": ("video/H264", get_stream)
 		}
 
 		posts = {
